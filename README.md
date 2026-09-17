@@ -34,8 +34,11 @@ deploys `dist/` to GitHub Pages via `.github/workflows/deploy.yml` on every push
 
 ## Setup in-game
 
-1. Add the app to Alt1 via its `configUrl` (see `src/appconfig.json`).
-2. Drink an Overload potion.
-3. Open the panel, click **Calibrate**, and click the Overload icon in the row of
+1. In RS3, set **Buff Bar Size** to **Small** and both **Game Scale** and **UI Scale**
+   to **100%** (Settings › Display). Alt1's `BuffReader` reads a hard-coded 27px icon
+   on a 30px grid, so it silently can't find the buff bar at any other size or scale.
+2. Add the app to Alt1 via its `configUrl` (see `src/appconfig.json`).
+3. Drink an Overload potion.
+4. Open the panel, click **Calibrate**, and click the Overload icon in the row of
    candidates that appears.
-4. Set your alert threshold and pick which alerts you want, then **Save**.
+5. Set your alert threshold and pick which alerts you want, then **Save**.

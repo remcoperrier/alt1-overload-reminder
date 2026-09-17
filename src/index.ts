@@ -36,6 +36,12 @@ const alt1host = (): any => (globalThis as any).alt1;
 const buffReader = new BuffReader();
 buffReader.debuffs = false; // Overload is a buff, not a debuff
 
+// Alt1's BuffReader hard-codes the on-screen icon grid size (27px icons on a 30px
+// grid), so it only ever lines up when RS3's own buff bar is set to Small and the
+// Game/UI scale is 100% — otherwise it silently never finds the bar at all.
+const SCALE_HINT =
+  "Alt1 can only read buff icons at Buff Bar Size: Small and Game/UI Scale: 100% (RS3 Settings › Display).";
+
 // The icon content is cropped at the same +1,+1 offset Buff.compareBuffer
 // uses internally, so a template captured from any bar slot lines up
 // against a candidate found in any other slot later on.
@@ -158,7 +164,7 @@ calibrateBtn.addEventListener("click", () => {
 
   if (!buffReader.pos) buffReader.find(img);
   if (!buffReader.pos) {
-    setStatus("Couldn't find your buff bar. Make sure at least one buff or debuff icon is visible, then try again.", "warn");
+    setStatus(`Couldn't find your buff bar. Make sure a buff is visible, then try again. ${SCALE_HINT}`, "warn");
     return;
   }
 
@@ -212,6 +218,7 @@ function formatTime(sec: number): string {
 
 let wasActive = false;
 let alerted = false;
+let findFailures = 0; // consecutive ticks where the buff bar couldn't be located
 
 function tick(): void {
   const host = alt1host();
@@ -235,10 +242,15 @@ function tick(): void {
   if (!buffReader.pos) {
     buffReader.find(img);
     if (!buffReader.pos) {
-      setStatus("Looking for your buff bar…", "warn");
+      findFailures++;
+      setStatus(
+        findFailures > 10 ? `Can't find your buff bar. ${SCALE_HINT}` : "Looking for your buff bar…",
+        "warn",
+      );
       timerEl.classList.add("hidden");
       return;
     }
+    findFailures = 0;
     dlog("buff bar located");
   }
 
