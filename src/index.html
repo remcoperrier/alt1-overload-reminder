@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="./icon.png" />
+    <title>HT - Overload Reminder</title>
+    <style>
+      :root {
+        --bg: #1b160e;
+        --panel: #2b2417;
+        --panel-2: #221c11;
+        --edge: #0c0a06;
+        --frame: #6f5a34;
+        --frame-lite: #9a7f4a;
+        --gold: #ffb43b;
+        --gold-lite: #ffd27a;
+        --text: #e9dcbe;
+        --muted: #9c8a63;
+        --field: #14100a;
+        --danger: #d6503f;
+        --ok: #7fc96b;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 13px/1.45 "Trebuchet MS", "Segoe UI", sans-serif;
+      }
+      .frame {
+        min-height: 100vh;
+        background:
+          radial-gradient(130% 90% at 50% -20%, rgba(255, 180, 59, 0.07), transparent 60%),
+          linear-gradient(180deg, var(--panel), var(--panel-2));
+        border: 1px solid var(--frame);
+        box-shadow: inset 0 0 0 1px var(--edge), inset 0 0 28px rgba(0, 0, 0, 0.55);
+      }
+      h1 {
+        margin: 0;
+        padding: 7px 12px 6px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        color: var(--gold);
+        text-shadow: 0 1px 0 #000, 0 0 12px rgba(255, 180, 59, 0.25);
+        background: linear-gradient(180deg, #3a3019, #2a2214);
+        border-bottom: 1px solid var(--frame);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      h1 .hdr-icon {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        filter: drop-shadow(0 1px 1px #000);
+      }
+      h1 .sub { color: var(--muted); font-weight: 400; }
+      .body { padding: 11px 12px 14px; }
+
+      .lbl {
+        display: block;
+        margin: 12px 0 3px;
+        color: var(--gold);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      .lbl:first-child { margin-top: 0; }
+      .divider {
+        height: 1px;
+        margin: 13px 0 2px;
+        background: linear-gradient(90deg, transparent, var(--frame-lite), transparent);
+      }
+
+      .inp {
+        width: 100%;
+        padding: 5px 7px;
+        background: var(--field);
+        color: var(--text);
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+        font: inherit;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+      }
+      .inp:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 180, 59, 0.4);
+      }
+      .inp--num { width: 64px; text-align: center; }
+
+      .row { display: flex; align-items: center; gap: 8px; }
+      .row--split { justify-content: space-between; margin-top: 12px; }
+
+      .btn {
+        font: inherit;
+        cursor: pointer;
+        padding: 5px 12px;
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+        background: linear-gradient(180deg, #3b3119, #2a2113);
+        color: var(--gold);
+        text-shadow: 0 1px 0 #000;
+      }
+      .btn:hover { border-color: var(--gold); color: var(--gold-lite); }
+      .btn:active { transform: translateY(1px); }
+      .btn--gold {
+        width: 100%;
+        margin-top: 14px;
+        padding: 8px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        background: linear-gradient(180deg, #5a4a24, #3a2f16);
+      }
+      .btn--ghost { padding: 4px 10px; font-size: 12px; }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px 14px;
+        margin-top: 5px;
+      }
+      .chk {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin: 3px 0;
+        cursor: pointer;
+        color: var(--text);
+        font-size: 12px;
+      }
+      .chk input { position: absolute; opacity: 0; width: 0; height: 0; }
+      .chk i {
+        width: 13px;
+        height: 13px;
+        flex: 0 0 13px;
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+        background: var(--field);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+        position: relative;
+      }
+      .chk input:checked + i {
+        background: linear-gradient(180deg, var(--gold-lite), var(--gold));
+        border-color: var(--gold-lite);
+      }
+      .chk input:checked + i::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 0;
+        width: 3px;
+        height: 7px;
+        border: solid #2a1c05;
+        border-width: 0 2px 2px 0;
+        transform: rotate(40deg);
+      }
+      .chk input:focus-visible + i { box-shadow: 0 0 0 2px rgba(255, 180, 59, 0.55); }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--gold);
+        background: transparent;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 13px;
+        padding: 6px 9px;
+        font-size: 12px;
+        color: var(--muted);
+        background: var(--panel-2);
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+      }
+      .status .dot {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 8px;
+        border-radius: 50%;
+        background: currentColor;
+        box-shadow: 0 0 7px currentColor;
+      }
+      .status.ok { color: var(--ok); }
+      .status.warn { color: var(--gold-lite); }
+      .status.err { color: var(--danger); }
+      .status.ok .dot { animation: pulse 2s ease-in-out infinite; }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; box-shadow: 0 0 7px currentColor; }
+        50% { opacity: 0.45; box-shadow: 0 0 2px currentColor; }
+      }
+
+      .timer {
+        margin-top: 8px;
+        padding: 8px 10px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        color: var(--gold-lite);
+        background: var(--panel-2);
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+        text-shadow: 0 1px 0 #000;
+      }
+
+      .tmpl-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 5px;
+      }
+      #template-preview {
+        width: 25px;
+        height: 25px;
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+        background: var(--field);
+        image-rendering: pixelated;
+      }
+      #template-state { font-size: 12px; }
+      #template-state.ok { color: var(--ok); }
+      #template-state.warn { color: var(--gold-lite); }
+
+      .candidates {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 8px;
+        background: var(--panel-2);
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+      }
+      .candidate {
+        width: 25px;
+        height: 25px;
+        border: 1px solid var(--frame);
+        border-radius: 2px;
+        cursor: pointer;
+        image-rendering: pixelated;
+      }
+      .candidate:hover { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+
+      .hint {
+        margin-top: 5px;
+        font-size: 10px;
+        line-height: 1.35;
+        color: var(--muted);
+      }
+      .hint b { color: var(--text); font-weight: 700; }
+
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <h1>
+        <img class="hdr-icon" src="./icon.png" alt="" onerror="this.remove()" />
+        HT <span class="sub">&mdash; Overload Reminder</span>
+      </h1>
+      <div class="body">
+        <label class="lbl">Overload icon</label>
+        <div class="tmpl-row">
+          <canvas id="template-preview" class="hidden" width="25" height="25"></canvas>
+          <span id="template-state">Not calibrated</span>
+          <button id="calibrate" class="btn btn--ghost" type="button" style="margin-left: auto">Calibrate</button>
+        </div>
+        <div class="hint">Drink an Overload potion so its icon is visible in your buff bar, then click <b>Calibrate</b> and pick it from the icons shown.</div>
+        <div id="calibrate-row" class="candidates hidden">
+          <div id="candidates"></div>
+        </div>
+
+        <div class="divider"></div>
+        <label class="lbl" for="threshold">Alert when remaining time drops to</label>
+        <div class="row">
+          <input id="threshold" class="inp inp--num" type="number" min="5" max="600" />
+          <span class="hint" style="margin-top: 0">seconds</span>
+        </div>
+
+        <div class="divider"></div>
+        <label class="lbl">Alerts</label>
+        <div class="grid">
+          <label class="chk" title="Play a beep through your speakers"><input type="checkbox" id="a-sound" /><i></i>Sound</label>
+          <label class="chk" title="Flash a coloured border around the game window"><input type="checkbox" id="a-overlay" /><i></i>Screen flash</label>
+          <label class="chk" title="Pop a Windows notification / flash the taskbar"><input type="checkbox" id="a-taskbar" /><i></i>Taskbar alert</label>
+        </div>
+        <label class="lbl" for="volume">Sound volume</label>
+        <input id="volume" type="range" min="0" max="100" step="5" />
+
+        <div class="row" style="margin-top: 14px; gap: 8px">
+          <button id="save" class="btn btn--gold" type="button" style="flex: 1; margin-top: 0">Save</button>
+          <button id="test" class="btn btn--ghost" type="button" title="Fire a test alert with your current settings">Test</button>
+        </div>
+
+        <div id="status" class="status"><span class="dot"></span><span id="status-text">Starting…</span></div>
+        <div id="timer" class="timer hidden"></div>
+      </div>
+    </div>
+    <script type="module" src="./bundle.js"></script>
+  </body>
+</html>

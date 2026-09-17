@@ -1,0 +1,14 @@
+{
+  "appName": "HT - Overload Reminder",
+  "description": "Warns you with sound, a screen flash and/or a taskbar alert before your Overload buff runs out.",
+  "appUrl": "./index.html",
+  "configUrl": "https://remcoperrier.github.io/alt1-overload-reminder/appconfig.json",
+  "iconUrl": "https://remcoperrier.github.io/alt1-overload-reminder/icon.png",
+  "defaultWidth": 344,
+  "defaultHeight": 470,
+  "minWidth": 300,
+  "minHeight": 360,
+  "maxWidth": 640,
+  "maxHeight": 700,
+  "permissions": "pixel,overlay"
+}
