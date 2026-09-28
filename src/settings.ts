@@ -6,7 +6,9 @@ export interface BuffTemplate {
 }
 
 export interface Settings {
-  /** Alert once remaining time drops to or below this many seconds. */
+  /** Also watch the buff-bar countdown (needs calibration + Small/100% UI). */
+  useBuffBar: boolean;
+  /** Buff-bar mode only: alert once remaining time drops to or below this many seconds. */
   thresholdSeconds: number;
   /** Which alert channels are enabled. */
   alerts: {
@@ -25,6 +27,7 @@ export interface Settings {
 const KEY = "overload-reminder:settings";
 
 const DEFAULTS: Settings = {
+  useBuffBar: false,
   thresholdSeconds: 30,
   alerts: {
     sound: true,

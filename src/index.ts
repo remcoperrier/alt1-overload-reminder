@@ -25,6 +25,7 @@ interface BuffHandle {
 import { loadSettings, saveSettings, type Settings } from "./settings";
 import { cropImageData, imageDataToDataUrl, dataUrlToImageData } from "./template";
 import { playAlertSound, flashOverlay, showTaskbarAlert } from "./alerts";
+import { OverloadChatWatcher } from "./chat";
 
 // --- Alt1 wiring -------------------------------------------------------------
 
@@ -54,6 +55,8 @@ let template: ImageData | null = null;
 
 const el = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
+const chatWatcher = new OverloadChatWatcher();
+const useBuffBarEl = el<HTMLInputElement>("use-buffbar");
 const thresholdEl = el<HTMLInputElement>("threshold");
 const soundEl = el<HTMLInputElement>("a-sound");
 const overlayEl = el<HTMLInputElement>("a-overlay");
@@ -74,6 +77,7 @@ function dlog(msg: string): void {
   if (DEBUG) console.log("[overload-reminder] " + msg);
 }
 
+useBuffBarEl.checked = settings.useBuffBar;
 thresholdEl.value = String(settings.thresholdSeconds);
 soundEl.checked = settings.alerts.sound;
 overlayEl.checked = settings.alerts.overlay;
@@ -124,6 +128,7 @@ el<HTMLButtonElement>("save").addEventListener("click", () => {
   const threshold = Math.min(600, Math.max(5, parseInt(thresholdEl.value, 10) || 30));
   settings = {
     ...settings,
+    useBuffBar: useBuffBarEl.checked,
     thresholdSeconds: threshold,
     alerts: {
       sound: soundEl.checked,
@@ -219,6 +224,7 @@ function formatTime(sec: number): string {
 let wasActive = false;
 let alerted = false;
 let findFailures = 0; // consecutive ticks where the buff bar couldn't be located
+let warnUntil = 0; // keep the "about to wear off" status visible until this time
 
 function tick(): void {
   const host = alt1host();
@@ -239,6 +245,30 @@ function tick(): void {
     return;
   }
 
+  if (settings.useBuffBar) {
+    tickBuffs(img);
+    return;
+  }
+
+  timerEl.classList.add("hidden");
+  const chat = chatWatcher.poll(img, dlog);
+  if (chat.fired) {
+    dlog("overload warning in chat -> alerting");
+    fireAlerts("Your Overload is about to wear off.");
+    warnUntil = Date.now() + 15_000;
+  }
+  if (chat.state === "no-chatbox") {
+    setStatus("Looking for your chat box…", "warn");
+  } else if (chat.state === "unreadable") {
+    setStatus("Chat box found, but lines aren't readable — use the default chat text size.", "warn");
+  } else if (Date.now() < warnUntil) {
+    setStatus("Overload is about to wear off!", "warn");
+  } else {
+    setStatus("Watching your chat for the overload warning.", "ok");
+  }
+}
+
+function tickBuffs(img: a1lib.ImgRef): void {
   if (!buffReader.pos) {
     buffReader.find(img);
     if (!buffReader.pos) {

@@ -254,6 +254,20 @@
       }
       .hint b { color: var(--text); font-weight: 700; }
 
+      .adv { margin-top: 12px; }
+      .adv > summary {
+        cursor: pointer;
+        list-style: none;
+        color: var(--gold);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 4px 0;
+      }
+      .adv > summary::-webkit-details-marker { display: none; }
+      .adv > summary::before { content: "\25B8 "; color: var(--muted); }
+      .adv[open] > summary::before { content: "\25BE "; }
+
       .hidden { display: none !important; }
     </style>
   </head>
@@ -264,25 +278,7 @@
         HT <span class="sub">&mdash; Overload Reminder</span>
       </h1>
       <div class="body">
-        <div class="hint">Requires RS3 <b>Buff Bar Size: Small</b> and <b>Game/UI Scale: 100%</b> (Settings &rsaquo; Display) &mdash; Alt1 can't read buff icons at any other size.</div>
-
-        <label class="lbl" style="margin-top: 10px">Overload icon</label>
-        <div class="tmpl-row">
-          <canvas id="template-preview" class="hidden" width="25" height="25"></canvas>
-          <span id="template-state">Not calibrated</span>
-          <button id="calibrate" class="btn btn--ghost" type="button" style="margin-left: auto">Calibrate</button>
-        </div>
-        <div class="hint">Drink an Overload potion so its icon is visible in your buff bar, then click <b>Calibrate</b> and pick it from the icons shown.</div>
-        <div id="calibrate-row" class="candidates hidden">
-          <div id="candidates"></div>
-        </div>
-
-        <div class="divider"></div>
-        <label class="lbl" for="threshold">Alert when remaining time drops to</label>
-        <div class="row">
-          <input id="threshold" class="inp inp--num" type="number" min="5" max="600" />
-          <span class="hint" style="margin-top: 0">seconds</span>
-        </div>
+        <div class="hint" style="margin-top: 0">Watches your chat box for <b>&ldquo;The effects of overload are about to wear off.&rdquo;</b> and alerts you. Keep chat text at the default size.</div>
 
         <div class="divider"></div>
         <label class="lbl">Alerts</label>
@@ -293,6 +289,31 @@
         </div>
         <label class="lbl" for="volume">Sound volume</label>
         <input id="volume" type="range" min="0" max="100" step="5" />
+
+        <details class="adv">
+          <summary>Advanced &mdash; buff bar timer</summary>
+          <div style="margin-top: 6px">
+            <label class="chk"><input type="checkbox" id="use-buffbar" /><i></i>Use the buff bar countdown instead of the chat warning</label>
+          </div>
+          <div class="hint">Lets you pick exactly when to alert, instead of the game&rsquo;s fixed ~20s chat warning. Requires RS3 <b>Buff Bar Size: Small</b> and <b>Game/UI Scale: 100%</b> (Settings &rsaquo; Display) &mdash; Alt1 can&rsquo;t read buff icons at any other size.</div>
+
+          <label class="lbl" style="margin-top: 10px">Overload icon</label>
+          <div class="tmpl-row">
+            <canvas id="template-preview" class="hidden" width="25" height="25"></canvas>
+            <span id="template-state">Not calibrated</span>
+            <button id="calibrate" class="btn btn--ghost" type="button" style="margin-left: auto">Calibrate</button>
+          </div>
+          <div class="hint">Drink an Overload potion so its icon is visible in your buff bar, then click <b>Calibrate</b> and pick it from the icons shown.</div>
+          <div id="calibrate-row" class="candidates hidden">
+            <div id="candidates"></div>
+          </div>
+
+          <label class="lbl" for="threshold">Alert when remaining time drops to</label>
+          <div class="row">
+            <input id="threshold" class="inp inp--num" type="number" min="5" max="600" />
+            <span class="hint" style="margin-top: 0">seconds</span>
+          </div>
+        </details>
 
         <div class="row" style="margin-top: 14px; gap: 8px">
           <button id="save" class="btn btn--gold" type="button" style="flex: 1; margin-top: 0">Save</button>

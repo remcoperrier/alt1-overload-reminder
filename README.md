@@ -1,18 +1,23 @@
 # HT - Overload Reminder
 
-An [Alt1](https://runeapps.org/alt1) plugin for RuneScape 3 that watches your buff bar
+An [Alt1](https://runeapps.org/alt1) plugin for RuneScape 3 that watches your chat box
 and warns you — with sound, a screen flash, and/or a taskbar alert — before your
 Overload buff runs out.
 
 ## How it works
 
-Rather than shipping a static reference image of the Overload buff icon (which would
-break with different graphics settings, UI scale, or if the game's assets change), the
-plugin **self-calibrates**: click **Calibrate** while Overload is active, pick its icon
-out of your current buff bar, and the plugin remembers that exact icon (captured from
-your own screen) to match against on every poll afterwards. Once found, it reads the
-countdown text overlaid on the icon (Alt1's `alt1/buffs` OCR) and fires your chosen
-alerts once the remaining time drops to your configured threshold.
+RS3 prints **"The effects of overload are about to wear off."** in chat roughly 20 seconds
+before Overload ends. The plugin reads your chat box with Alt1's chatbox OCR and fires
+your chosen alerts (sound, screen flash, taskbar notification) when that line appears.
+Keep chat text at the default size, or Alt1 can't read it.
+
+### Optional: buff bar timer (Advanced)
+
+If you'd rather pick exactly when to be warned, tick **Use the buff bar countdown
+instead of the chat warning**. The plugin then self-calibrates: click **Calibrate** while
+Overload is active, pick its icon out of your buff bar, and it matches that icon (from
+your own screen) on every poll and reads the countdown text with Alt1's `alt1/buffs`.
+This mode needs the buff bar setup below.
 
 ## Development
 
@@ -29,16 +34,20 @@ deploys `dist/` to GitHub Pages via `.github/workflows/deploy.yml` on every push
 
 ## Permissions
 
-- **Pixel** — to read the buff bar.
+- **Pixel** — to read the chat box (and buff bar).
 - **Overlay** — for the screen-flash alert and the taskbar notification.
 
 ## Setup in-game
 
+1. Add the app to Alt1 via its `configUrl` (see `src/appconfig.json`).
+2. Leave chat text at the default size, pick which alerts you want, then **Save**.
+   Use **Test** to check them.
+
+### Buff bar mode only
+
 1. In RS3, set **Buff Bar Size** to **Small** and both **Game Scale** and **UI Scale**
    to **100%** (Settings › Display). Alt1's `BuffReader` reads a hard-coded 27px icon
    on a 30px grid, so it silently can't find the buff bar at any other size or scale.
-2. Add the app to Alt1 via its `configUrl` (see `src/appconfig.json`).
-3. Drink an Overload potion.
-4. Open the panel, click **Calibrate**, and click the Overload icon in the row of
-   candidates that appears.
-5. Set your alert threshold and pick which alerts you want, then **Save**.
+2. Drink an Overload potion, open Advanced, click **Calibrate**, and click the Overload
+   icon in the row of candidates.
+3. Set your alert threshold and **Save**.
