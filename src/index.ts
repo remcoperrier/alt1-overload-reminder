@@ -62,6 +62,7 @@ const soundEl = el<HTMLInputElement>("a-sound");
 const overlayEl = el<HTMLInputElement>("a-overlay");
 const taskbarEl = el<HTMLInputElement>("a-taskbar");
 const volumeEl = el<HTMLInputElement>("volume");
+const volumeValueEl = el<HTMLSpanElement>("volume-value");
 const calibrateBtn = el<HTMLButtonElement>("calibrate");
 const calibrateRow = el<HTMLDivElement>("calibrate-row");
 const candidatesEl = el<HTMLDivElement>("candidates");
@@ -83,6 +84,11 @@ soundEl.checked = settings.alerts.sound;
 overlayEl.checked = settings.alerts.overlay;
 taskbarEl.checked = settings.alerts.taskbar;
 volumeEl.value = String(Math.round(settings.soundVolume * 100));
+const renderVolumeLabel = (): void => {
+  volumeValueEl.textContent = `— ${volumeEl.value}%`;
+};
+volumeEl.addEventListener("input", renderVolumeLabel);
+renderVolumeLabel();
 
 type Level = "" | "ok" | "warn" | "err";
 
@@ -143,7 +149,12 @@ el<HTMLButtonElement>("save").addEventListener("click", () => {
 });
 
 el<HTMLButtonElement>("test").addEventListener("click", () => {
-  fireAlerts("Test alert — this is what you'll see/hear when Overload is about to run out.");
+  // Use the live (possibly unsaved) controls so Test always reflects what's on screen.
+  const liveVolume = Math.min(100, Math.max(0, parseInt(volumeEl.value, 10) || 0)) / 100;
+  const message = "Test alert — this is what you'll see/hear when Overload is about to run out.";
+  if (soundEl.checked) void playAlertSound(liveVolume);
+  if (overlayEl.checked) flashOverlay();
+  if (taskbarEl.checked) showTaskbarAlert(message);
 });
 
 // --- Calibration ---------------------------------------------------------
@@ -208,7 +219,7 @@ calibrateBtn.addEventListener("click", () => {
 // --- Alerts --------------------------------------------------------------
 
 function fireAlerts(message: string): void {
-  if (settings.alerts.sound) playAlertSound(settings.soundVolume);
+  if (settings.alerts.sound) void playAlertSound(settings.soundVolume);
   if (settings.alerts.overlay) flashOverlay();
   if (settings.alerts.taskbar) showTaskbarAlert(message);
 }

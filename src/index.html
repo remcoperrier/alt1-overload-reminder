@@ -268,6 +268,13 @@
       .adv > summary::before { content: "\25B8 "; color: var(--muted); }
       .adv[open] > summary::before { content: "\25BE "; }
 
+      .vol-value {
+        color: var(--muted);
+        text-transform: none;
+        letter-spacing: 0;
+        font-weight: 400;
+      }
+
       .hidden { display: none !important; }
     </style>
   </head>
@@ -283,11 +290,11 @@
         <div class="divider"></div>
         <label class="lbl">Alerts</label>
         <div class="grid">
-          <label class="chk" title="Play a beep through your speakers"><input type="checkbox" id="a-sound" /><i></i>Sound</label>
+          <label class="chk" title="Say &quot;Jarno!&quot; out loud through your speakers"><input type="checkbox" id="a-sound" /><i></i>Sound</label>
           <label class="chk" title="Flash a coloured border around the game window"><input type="checkbox" id="a-overlay" /><i></i>Screen flash</label>
           <label class="chk" title="Pop a Windows notification / flash the taskbar"><input type="checkbox" id="a-taskbar" /><i></i>Taskbar alert</label>
         </div>
-        <label class="lbl" for="volume">Sound volume</label>
+        <label class="lbl" for="volume">Sound volume <span id="volume-value" class="vol-value"></span></label>
         <input id="volume" type="range" min="0" max="100" step="5" />
 
         <details class="adv">

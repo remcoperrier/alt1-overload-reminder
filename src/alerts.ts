@@ -6,10 +6,49 @@ function alt1host(): any {
 }
 
 let audioCtx: AudioContext | null = null;
+let voicesReady: Promise<void> | null = null;
 
-/** Three sharp beeps synthesised with the Web Audio API — no bundled sound
- *  file needed, so there's nothing to license or ship. */
-export function playAlertSound(volume: number): void {
+/** Chromium (which Alt1 embeds) only exposes OS voices asynchronously; the
+ *  list is empty until the first `voiceschanged` event fires. Wait for that
+ *  once, with a timeout, rather than speaking with zero voices loaded. */
+function waitForVoices(synth: SpeechSynthesis): Promise<void> {
+  if (synth.getVoices().length > 0) return Promise.resolve();
+  voicesReady ??= new Promise((resolve) => {
+    const done = () => resolve();
+    synth.addEventListener("voiceschanged", done, { once: true });
+    setTimeout(done, 600);
+  });
+  return voicesReady;
+}
+
+/** Speaks "Jarno!" via the browser's built-in text-to-speech — no bundled
+ *  audio file needed, so there's nothing to license or ship. Falls back to a
+ *  synthesised beep if speech synthesis isn't available in this Alt1 build
+ *  or has no voices installed. */
+export async function playAlertSound(volume: number): Promise<void> {
+  const synth = (globalThis as any).speechSynthesis as SpeechSynthesis | undefined;
+  if (synth && typeof SpeechSynthesisUtterance !== "undefined") {
+    try {
+      await waitForVoices(synth);
+      if (synth.getVoices().length > 0) {
+        synth.cancel(); // don't queue up behind a previous alert
+        const utter = new SpeechSynthesisUtterance("Jarno!");
+        utter.volume = Math.max(0, Math.min(1, volume));
+        utter.rate = 0.9;
+        utter.pitch = 1.1;
+        synth.speak(utter);
+        return;
+      }
+    } catch {
+      /* fall through to the beep */
+    }
+  }
+  playBeep(volume);
+}
+
+/** Three sharp beeps synthesised with the Web Audio API — the fallback when
+ *  speech synthesis isn't available. */
+function playBeep(volume: number): void {
   try {
     audioCtx ??= new AudioContext();
     const ctx = audioCtx;

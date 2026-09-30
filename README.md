@@ -11,6 +11,10 @@ before Overload ends. The plugin reads your chat box with Alt1's chatbox OCR and
 your chosen alerts (sound, screen flash, taskbar notification) when that line appears.
 Keep chat text at the default size, or Alt1 can't read it.
 
+The sound alert speaks **"Jarno!"** aloud using the browser's built-in text-to-speech
+(no bundled audio file, nothing to license) with a volume you control. If speech
+synthesis isn't available in your Alt1 build, it falls back to a synthesised beep.
+
 ### Optional: buff bar timer (Advanced)
 
 If you'd rather pick exactly when to be warned, tick **Use the buff bar countdown
