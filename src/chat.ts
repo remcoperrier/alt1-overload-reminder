@@ -1,5 +1,6 @@
 import * as a1lib from "alt1/base";
 import * as ChatboxModule from "alt1/chatbox";
+import { WarningGate } from "./gate";
 
 // `alt1/chatbox` is a CJS/UMD bundle with a compiled `export default`; under
 // esbuild's Node-style interop the real class sits one level deeper.
@@ -27,13 +28,10 @@ export function isOverloadWarning(text: string): boolean {
 
 export type ChatState = "no-chatbox" | "unreadable" | "ok";
 
-const MIN_REFIRE_MS = 15_000;
-
 export class OverloadChatWatcher {
   private reader = new ChatBoxReader();
-  private prevCount = 0;
-  private baselined = false;
-  private lastFire = 0;
+  private gate = new WarningGate();
+  private lastRows = "";
   private readFailures = 0;
   private emptyReads = 0;
 
@@ -71,19 +69,20 @@ export class OverloadChatWatcher {
     }
     this.emptyReads = 0;
 
-    const count = lines.filter((l) => isOverloadWarning(l.text ?? "")).length;
-    if (count > 0) log(`overload warning visible x${count}`);
+    // Row numbers counted up from the bottom (0 = newest line), for diagnostics.
+    const rows: number[] = [];
+    lines.forEach((l, i) => {
+      if (isOverloadWarning(l.text ?? "")) rows.push(lines.length - 1 - i);
+    });
 
-    // The reader re-returns every visible line each poll, so only a rise in the
-    // number of matching lines is a new warning. The first successful read just
-    // sets the baseline so an old warning still on screen doesn't fire at startup.
-    let fired = false;
-    if (this.baselined && count > this.prevCount && Date.now() - this.lastFire > MIN_REFIRE_MS) {
-      fired = true;
-      this.lastFire = Date.now();
+    const fired = this.gate.update(rows.length, Date.now());
+    const sig = rows.join(",");
+    if (sig !== this.lastRows || fired) {
+      log(`warning rows from bottom [${sig}] — ${this.gate.reason || "no change"}`);
+      this.lastRows = sig;
+    } else if (this.gate.reason.startsWith("suppressed")) {
+      log(this.gate.reason);
     }
-    this.prevCount = count;
-    this.baselined = true;
     return { state: "ok", fired };
   }
 }

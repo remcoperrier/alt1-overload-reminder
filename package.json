@@ -10,7 +10,8 @@
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --serve",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "esbuild scripts/check-gate.mjs --bundle --platform=node --format=esm --outfile=dist/check-gate.mjs --log-level=warning && node dist/check-gate.mjs"
   },
   "dependencies": {
     "alt1": "^0.1.3"
